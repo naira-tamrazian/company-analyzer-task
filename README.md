@@ -1,2 +1,2 @@
-# company-analyzer-task
-A program which analyzes company organizational structure and identifies potential improvements. 
+# company-analyzer
+Current project analyzes company organizational structure and identifies potential improvements. 
