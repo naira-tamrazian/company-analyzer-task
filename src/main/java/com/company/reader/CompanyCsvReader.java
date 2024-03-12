@@ -1,65 +1,77 @@
 package com.company.reader;
 
+import com.company.exception.CsvFileIOException;
+import com.company.exception.InvalidCsvFileFormatException;
 import com.company.model.Employee;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class is used for reading company csv file and constructing Employee objects and
- * manager-subordinates relationships between based on read info
+ * manager-subordinates relationships between them based on provided info
  */
-@Slf4j
 public class CompanyCsvReader {
 
-    private final String csvFile;
-
-    public CompanyCsvReader(String csvFile) {
-        this.csvFile = csvFile;
-    }
+    private static final Integer ID_COLUMN_INDEX = 0;
+    private static final Integer FIRST_NAME_COLUMN_INDEX = 1;
+    private static final Integer LAST_NAME_COLUMN_INDEX = 2;
+    private static final Integer SALARY_COLUMN_INDEX = 3;
+    private static final Integer MANAGER_ID_COLUMN_INDEX = 4;
 
     /**
      * The method reads provided csv file from application resources and constructs Employee objects Hashmap where
      * the key is employee id
+     * @param csvFile Company csv file
      *
      * @return returns Employee objects Hashmap where the key is employee id
      */
-    public Map<Integer, Employee> readEmployeesFromFile() {
+    public Map<Integer, Employee> readEmployeesFromFile(String csvFile) {
         Map<Integer, Employee> employeeMap = new HashMap<>();
 
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(csvFile)) {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream)))) {
-                br.readLine();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] data = line.split(",");
-                    Employee employee = Employee.builder()
-                            .id(Integer.parseInt(data[0]))
-                            .firstName(data[1])
-                            .lastName(data[2])
-                            .salary(Integer.parseInt(data[3].isEmpty() ? "0" : data[3]))
-                            .managerId(data.length > 4 ? Integer.parseInt(data[4]) : null)
-                            .subordinates(new ArrayList<>())
-                            .build();
-
-                    employeeMap.put(employee.getId(), employee);
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            br.readLine();//skip the header of the csv file
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if(data.length > 5 || data.length < 4) {
+                    throw new InvalidCsvFileFormatException(
+                            MessageFormat.format("Error reading CSV file {0} as it has an invalid format.", csvFile));
                 }
-                buildManagerSubordinatesRelationships(employeeMap);
+
+                Employee employee = Employee.builder()
+                        .id(Integer.parseInt(data[ID_COLUMN_INDEX]))
+                        .firstName(data[FIRST_NAME_COLUMN_INDEX])
+                        .lastName(data[LAST_NAME_COLUMN_INDEX])
+                        .salary(Integer.parseInt(data[SALARY_COLUMN_INDEX]))
+                        .managerId(hasManagerIdColumn(data) ? Integer.parseInt(data[MANAGER_ID_COLUMN_INDEX]) : null)
+                        .subordinates(new ArrayList<>())
+                        .build();
+
+                employeeMap.put(employee.getId(), employee);
             }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            if(employeeMap.isEmpty()) {
+                throw new InvalidCsvFileFormatException(
+                        MessageFormat.format("CSV file {0} does not contain employee data.", csvFile));
+            }
+            buildManagerSubordinatesRelationships(employeeMap);
+        }
+         catch (IOException e) {
+            throw new CsvFileIOException(e);
         }
         return employeeMap;
     }
 
-        private static void buildManagerSubordinatesRelationships(Map<Integer, Employee> employeeMap) {
+    private boolean hasManagerIdColumn(String[] data) {
+        return data.length > 4;
+    }
+
+    private static void buildManagerSubordinatesRelationships(Map<Integer, Employee> employeeMap) {
         for (Employee employee : employeeMap.values()) {
             if (employee.getManagerId() != null) {
                 Employee manager = employeeMap.get(employee.getManagerId());

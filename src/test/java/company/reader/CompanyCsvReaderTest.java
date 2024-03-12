@@ -1,5 +1,6 @@
 package company.reader;
 
+import com.company.exception.InvalidCsvFileFormatException;
 import com.company.reader.CompanyCsvReader;
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +14,8 @@ class CompanyCsvReaderTest {
 
     @Test
     void testReadEmployeesFromFile() {
-        var csvReader = new CompanyCsvReader("company.csv");
-        var employees = csvReader.readEmployeesFromFile();
+        var csvReader = new CompanyCsvReader();
+        var employees = csvReader.readEmployeesFromFile("src/test/resources/company.csv");
 
         assertNotNull(employees);
         assertEquals(9, employees.size());
@@ -41,8 +42,8 @@ class CompanyCsvReaderTest {
 
     @Test
     void testReadEmployeesFromLargeFile() {
-        var csvReader = new CompanyCsvReader("big_company.csv");
-        var employees = csvReader.readEmployeesFromFile();
+        var csvReader = new CompanyCsvReader();
+        var employees = csvReader.readEmployeesFromFile("src/test/resources/big_company.csv");
 
         assertNotNull(employees);
         assertEquals(1000, employees.size());
@@ -50,7 +51,15 @@ class CompanyCsvReaderTest {
 
     @Test
     void testReadEmployeesFromInvalidFile() {
-        var csvReader = new CompanyCsvReader("invalid.csv");
-        assertThrows(NumberFormatException.class, csvReader::readEmployeesFromFile);
+        var csvReader = new CompanyCsvReader();
+        assertThrows(InvalidCsvFileFormatException.class,
+                () -> csvReader.readEmployeesFromFile("src/test/resources/invalid.csv"));
+    }
+
+    @Test
+    void testReadEmployeesFromEmptyFile() {
+        var csvReader = new CompanyCsvReader();
+        assertThrows(InvalidCsvFileFormatException.class,
+                () -> csvReader.readEmployeesFromFile("src/test/resources/empty.csv"));
     }
 }
