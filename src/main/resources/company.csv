@@ -8,3 +8,4 @@ Id,firstName,lastName,salary,managerId
 310,Anna,Smith,100000,309
 311,Anthony,Brown,100000,310
 312,Denis,How,390000,311
+313,Brad,Smith,10000,312

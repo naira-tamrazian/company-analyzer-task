@@ -38,8 +38,8 @@ public class CompanyEmployeeAnalyzer {
                     queue.addAll(currentEmployee.getSubordinates());
                 }
             }
-            reportingLines++;
             checkReportingLineLength(queue, reportingLines);
+            reportingLines++;
         }
     }
 

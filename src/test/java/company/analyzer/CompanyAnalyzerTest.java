@@ -44,14 +44,15 @@ class CompanyAnalyzerTest {
         assertEquals("""
             Employee id=124, Martin Chekov earns less than expected by 45,000.
             Employee id=309, John Smith earns less than expected by 20,000.
-            Employee id=310, Anna Smith earns less than expected by 20,000.""",
+            Employee id=310, Anna Smith earns less than expected by 20,000.
+            Employee id=311, Anthony Brown earns more than expected by 25,000.""",
                 outputStreamCaptor.toString().trim());
     }
 
     @Test
     void testAnalyzeCompanyReportingLines() {
-        getEmployeesMap().put(312, Employee.builder().id(312).firstName("Denis").lastName("How").salary(37000)
-                        .managerId(311).subordinates(new ArrayList<>()).build());
+        getEmployeesMap().put(313, Employee.builder().id(313).firstName("Brad").lastName("Smith").salary(37000)
+                        .managerId(312).subordinates(new ArrayList<>()).build());
         buildManagerSubordinatesRelationships();
 
         CompanyEmployeeAnalyzer companyEmployeeAnalyzer = new CompanyEmployeeAnalyzer();
@@ -61,10 +62,10 @@ class CompanyAnalyzerTest {
            Employee id=124, Martin Chekov earns less than expected by 45,000.
            Employee id=309, John Smith earns less than expected by 20,000.
            Employee id=310, Anna Smith earns less than expected by 20,000.
-           Employee id=311, Anthony Brown earns more than expected by 44,500.
-           
+           Employee id=311, Anthony Brown earns more than expected by 25,000.
+            
            There are employees with more than 4 levels of reporting line:
-           id=312, Denis How""",
+           id=313, Brad Smith""",
                 outputStreamCaptor.toString().trim());
     }
 
@@ -95,6 +96,8 @@ class CompanyAnalyzerTest {
             employees.put(310, Employee.builder().id(310).firstName("Anna").lastName("Smith").salary(100000).managerId(309)
                     .subordinates(new ArrayList<>()).build());
             employees.put(311, Employee.builder().id(311).firstName("Anthony").lastName("Brown").salary(100000).managerId(310)
+                    .subordinates(new ArrayList<>()).build());
+            employees.put(312, Employee.builder().id(312).firstName("Dan").lastName("Brown").salary(50000).managerId(311)
                     .subordinates(new ArrayList<>()).build());
 
         }
