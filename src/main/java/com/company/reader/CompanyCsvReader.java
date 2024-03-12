@@ -25,9 +25,9 @@ public class CompanyCsvReader {
     private static final Integer MANAGER_ID_COLUMN_INDEX = 4;
 
     /**
-     * The method reads provided csv file from application resources and constructs Employee objects Hashmap where
+     * The method reads provided csv file and constructs Employee objects Hashmap where
      * the key is employee id
-     * @param csvFile Company csv file
+     * @param csvFile Company csv file path
      *
      * @return returns Employee objects Hashmap where the key is employee id
      */
